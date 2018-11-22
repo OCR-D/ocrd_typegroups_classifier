@@ -14,7 +14,7 @@ help:
 	@echo "    uninstall    Remove all installed files, and subfolder in share/"
 
 deps:
-	pip3 --no-cache-dir install -r files/requirements.txt
+	pip3 --no-cache-dir install -r requirements.txt
 
 install:
 	@mkdir -p $(SHAREDIR) $(BINDIR) $(TESTDIR)
