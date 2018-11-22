@@ -25,3 +25,15 @@ Finally, run the test:
 ```
 sh test/test.sh
 ```
+
+## Models
+
+Models bundled with the tool:
+
+  * network-epoch-99-settings-011.pth: TODO describe
+
+## Performance
+
+The smaller the `stride`, the longer the runtime, the more accurate the result. TODO
+
+
