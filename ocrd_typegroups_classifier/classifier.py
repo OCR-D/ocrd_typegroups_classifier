@@ -3,7 +3,6 @@ from __future__ import print_function
 import torch
 import torch.utils.data
 from torchvision import transforms
-from PIL import Image
 
 from ocrd.utils import getLogger
 
@@ -27,18 +26,15 @@ class TypegroupsClassifier():
         log.debug('Using network: %s', network_file)
         log.debug('Using stride: %s', stride)
 
-    def run(self, image_file):
+    def run(self, pil_image):
         """
         Classifiy types on an image
 
         Arguments:
-            network_file (string): Path to a network file
-            image_file (string): Path to the scanned image
-            stride (number): Stride applied to the CNN on the image. Should be between 1 and 224. Smaller values increase the computation time.
+            pil_image (PIL.Image): PIL image
         """
 
         log.debug('Loading image...')
-        sample = Image.open(image_file)
 
         log.debug('Loading network...')
         dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -55,9 +51,9 @@ class TypegroupsClassifier():
         processed_samples = 0
         batch = []
         with torch.no_grad():
-            for x in range(0, sample.size[0], self.stride):
-                for y in range(0, sample.size[1], self.stride):
-                    crop = tensorize(sample.crop((x, y, x+224, y+224)))
+            for x in range(0, pil_image.size[0], self.stride):
+                for y in range(0, pil_image.size[1], self.stride):
+                    crop = tensorize(pil_image.crop((x, y, x+224, y+224)))
                     batch.append(crop)
                     if len(batch) >= batch_size:
                         tensors = torch.stack(batch).to(dev)
