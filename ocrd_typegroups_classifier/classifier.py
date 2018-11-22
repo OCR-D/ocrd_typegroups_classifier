@@ -74,3 +74,4 @@ class TypegroupsClassifier():
         for c in sorted(conf, reverse=True):
             result = '%s:%s=%2.2f' % (result, conf[c], 100 / ssum * c)
         print(result)
+        return result
