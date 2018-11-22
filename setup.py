@@ -7,7 +7,7 @@ with codecs.open('README.md', encoding='utf-8') as f:
     README = f.read()
 
 setup(
-    name='ocrd_typegroup_classifier',
+    name='ocrd_typegroups_classifier',
     version='0.0.1',
     description='Typegroups classifier for OCR',
     long_description=README,
@@ -29,7 +29,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'ocrd=ocrd.cli:cli',
+            'ocrd-typegroups-identifier=ocrd_typegroups_classifier.cli:cli',
         ]
     },
 )
