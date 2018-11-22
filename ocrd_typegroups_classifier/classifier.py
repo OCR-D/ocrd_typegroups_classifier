@@ -7,16 +7,10 @@ from PIL import Image
 
 from ocrd.utils import getLogger
 
+from .constants import classes
 from .vraec import vraec18
 
 log = getLogger('ocrd_typegroups_classifier')
-
-classes = {
-    0: "Antiqua",
-    1: "Bastarda",
-    6: "Rotunda",
-    7: "Textura"
-}
 
 class TypegroupsClassifier():
 
