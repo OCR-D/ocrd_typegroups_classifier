@@ -1,38 +1,30 @@
-PREFIX = $(PWD)/local
-BINDIR = $(PREFIX)/bin
-SHAREDIR = $(PREFIX)/share/ocrd_typegroups_classifier
-TESTDIR = $(PREFIX)/test
+# pypi name of the package
+PKG_NAME = ocrd_typegroups_classifier
 
-TOOLS = $(shell ocrd ocrd-tool ocrd-tool.json list-tools)
+# BEGIN-EVAL makefile-parser --make-help Makefile
 
 help:
 	@echo ""
 	@echo "  Targets"
 	@echo ""
-	@echo "    install      Install"
-	@echo "    deps         Install dependencies"
-	@echo "    uninstall    Remove all installed files, and subfolder in share/"
+	@echo "    deps       pip install -r requirements.txt"
+	@echo "    install    pip install -e ."
+	@echo "    uninstall  pip uninstall $(PKG_NAME)"
+	@echo ""
+	@echo "  Variables"
+	@echo ""
+	@echo "    PKG_NAME  pypi name of the package"
 
+# END-EVAL
+
+# pip install -r requirements.txt
 deps:
-	pip3 --no-cache-dir install -r requirements.txt
+	pip install -r requirements.txt
 
+# pip install -e .
 install:
-	@mkdir -p $(SHAREDIR) $(BINDIR) $(TESTDIR)
-	# TODO: get files/ from github
-	cp files/ocrd_typegroups_classifier.py \
-	   files/var_conv2d.py \
-	   files/vraec.py \
-	   files/network-epoch-99-settings-011.pth \
-	   files/ocrd-tool.json \
-	   $(SHAREDIR)
-	cp files/ocrd_typegroups_classifier $(BINDIR)
-	chmod +x $(BINDIR)/ocrd_typegroups_classifier
-	mkdir -p ./test
-	cp files/test.sh test/
-	sed -i 's,^SHAREDIR=.*,SHAREDIR="$(SHAREDIR)",' $(BINDIR)/ocrd_typegroups_classifier test/test.sh
-	sed -i 's,^BINDIR=.*,BINDIR="$(BINDIR)",' $(BINDIR)/ocrd_typegroups_classifier test/test.sh
+	pip install -e .
 
+# pip uninstall $(PKG_NAME)
 uninstall:
-	rm -r --verbose --force \
-	   $(BINDIR)/ocrd_typegroups_classifier \
-	   $(PREFIX)/share/ocrd_typegroups_classifier
+	pip uninstall $(PKG_NAME)
