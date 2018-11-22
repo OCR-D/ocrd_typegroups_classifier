@@ -7,7 +7,8 @@ import math
 import torch.nn as nn
 from torchvision.models.resnet import model_urls
 from torch.utils import model_zoo
-from var_conv2d import VarConv2d
+
+from .var_conv2d import VarConv2d
 
 
 def conv3x3(in_planes, out_planes, stride=1):

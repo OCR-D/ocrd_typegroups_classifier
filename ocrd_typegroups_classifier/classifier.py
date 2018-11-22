@@ -1,12 +1,15 @@
 from __future__ import print_function
-import sys
 
 import torch
 import torch.utils.data
 from torchvision import transforms
 from PIL import Image
 
-from vraec import vraec18
+from ocrd.utils import getLogger
+
+from .vraec import vraec18
+
+log = getLogger('ocrd_typegroups_classifier')
 
 classes = {
     0: "Antiqua",
@@ -16,18 +19,6 @@ classes = {
 }
 
 class TypegroupsClassifier():
-
-    def main(self):
-        """
-        Run on sys.args
-        """
-        if len(sys.argv) < 3 or len(sys.argv) > 4:
-            print('Error. Syntax: python3 ocrd_typegroups_classifier.py network-file image-file [stride]')
-            quit(1)
-        network_file = sys.argv[1]
-        image_file = sys.argv[2]
-        stride = sys.argv[3] if len(sys.argv) > 3 else 96
-        self.run(network_file, image_file, stride)
 
     def run(self, network_file, image_file, stride):
         """
@@ -39,10 +30,10 @@ class TypegroupsClassifier():
             stride (number): Stride applied to the CNN on the image. Should be between 1 and 224. Smaller values increase the computation time.
         """
 
-        print('Loading image...')
+        log.debug('Loading image...')
         sample = Image.open(image_file)
 
-        print('Loading network...')
+        log.debug('Loading network...')
         dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         vraec = vraec18(layer_size=96, output_channels=8)
         vraec.load_state_dict(torch.load(network_file, map_location='cpu'))
@@ -50,7 +41,7 @@ class TypegroupsClassifier():
         for l in range(2, 6):
             vraec.set_variational(l, False)
 
-        print('Using stride', stride)
+        log.debug('Using stride: %s', stride)
 
         tensorize = transforms.ToTensor()
         batch_size = 64 if torch.cuda.is_available() else 2
@@ -69,7 +60,7 @@ class TypegroupsClassifier():
                         score += out.sum(0)
                         processed_samples += len(batch)
                         batch = []
-            if len(batch) > 0:
+            if batch:
                 tensors = torch.stack(batch).to(dev)
                 out, _ = vraec(tensors)
                 score += out.sum(0)
@@ -89,6 +80,3 @@ class TypegroupsClassifier():
         for c in sorted(conf, reverse=True):
             result = '%s:%s=%2.2f' % (result, conf[c], 100 / ssum * c)
         print(result)
-
-if __name__ == '__main__':
-    TypegroupsClassifier().main()

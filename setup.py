@@ -29,7 +29,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'ocrd-typegroups-identifier=ocrd_typegroups_classifier.cli:cli',
+            'typegroups-identifier=ocrd_typegroups_classifier.cli.simple:cli',
         ]
     },
 )
