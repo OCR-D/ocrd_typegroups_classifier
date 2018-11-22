@@ -14,7 +14,20 @@ log = getLogger('ocrd_typegroups_classifier')
 
 class TypegroupsClassifier():
 
-    def run(self, network_file, image_file, stride):
+    def __init__(self, network_file, stride):
+        """
+        Create a new classifier
+
+        Arguments:
+            network_file (string): Path to a network file
+            stride (number): Stride applied to the CNN on the image. Should be between 1 and 224. Smaller values increase the computation time.
+        """
+        self.network_file = network_file
+        self.stride = stride
+        log.debug('Using network: %s', network_file)
+        log.debug('Using stride: %s', stride)
+
+    def run(self, image_file):
         """
         Classifiy types on an image
 
@@ -30,12 +43,10 @@ class TypegroupsClassifier():
         log.debug('Loading network...')
         dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         vraec = vraec18(layer_size=96, output_channels=8)
-        vraec.load_state_dict(torch.load(network_file, map_location='cpu'))
+        vraec.load_state_dict(torch.load(self.network_file, map_location='cpu'))
         vraec.to(dev)
         for l in range(2, 6):
             vraec.set_variational(l, False)
-
-        log.debug('Using stride: %s', stride)
 
         tensorize = transforms.ToTensor()
         batch_size = 64 if torch.cuda.is_available() else 2
@@ -44,8 +55,8 @@ class TypegroupsClassifier():
         processed_samples = 0
         batch = []
         with torch.no_grad():
-            for x in range(0, sample.size[0], stride):
-                for y in range(0, sample.size[1], stride):
+            for x in range(0, sample.size[0], self.stride):
+                for y in range(0, sample.size[1], self.stride):
                     crop = tensorize(sample.crop((x, y, x+224, y+224)))
                     batch.append(crop)
                     if len(batch) >= batch_size:
@@ -73,5 +84,5 @@ class TypegroupsClassifier():
         result = 'result'
         for c in sorted(conf, reverse=True):
             result = '%s:%s=%2.2f' % (result, conf[c], 100 / ssum * c)
-        print(result)
+        log.debug(result)
         return result
