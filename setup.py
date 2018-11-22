@@ -21,6 +21,7 @@ setup(
         'ocrd >= 0.11.0',
         'torch',
         'pandas',
+        'Pillow >= 5.3.0',
         'scikit-image',
         'torchvision',
     ],
