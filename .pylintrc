@@ -1,0 +1,32 @@
+[MASTER]
+extension-pkg-whitelist=lxml,torch
+ignored-modules=cv2,tesserocr,ocrd.model
+
+[TYPECHECL]
+
+
+# List of members which are set dynamically and missed by pylint inference
+# system, and so shouldn't trigger E1101 when accessed. Python regular
+# expressions are accepted.
+generated-members=numpy.*,torch.*
+
+[MESSAGES CONTROL]
+ignore-patterns='.*generateds.*'
+disable =
+    inconsistent-return-statements,
+    ungrouped-imports,
+    bad-continuation,
+    too-many-instance-attributes,
+    useless-import-alias,
+    broad-except,
+    too-many-locals,
+    missing-docstring,
+    no-self-use,
+    fixme,
+    too-many-arguments,
+    superfluous-parens,
+    invalid-name,
+    line-too-long,
+    too-many-branches,
+    too-few-public-methods,
+
