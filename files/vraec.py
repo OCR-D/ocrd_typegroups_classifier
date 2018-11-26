@@ -5,12 +5,16 @@ import logging
 import math
 
 import torch.nn as nn
+from torchvision.models.resnet import model_urls
+from torch.utils import model_zoo
 from var_conv2d import VarConv2d
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
+
 
 def varConv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
@@ -28,7 +32,7 @@ class _VariationalBasicBlock(nn.Module):
         self.conv2 = varConv3x3(planes, planes)
         self.downsample = downsample
         self.stride = stride
-        
+
         self.varloss = 0
 
     def forward(self, x):
@@ -38,7 +42,7 @@ class _VariationalBasicBlock(nn.Module):
         out = self.relu(out)
 
         out, self.varloss = self.conv2(out)
-        
+
         if self.downsample is not None:
             residual = self.downsample(x)
 
@@ -63,7 +67,7 @@ class _VariationalBottleneck(nn.Module):
         self.relu = nn.ReLU()
         self.downsample = downsample
         self.stride = stride
-        
+
         self.varloss = 0
 
     def forward(self, x):
@@ -105,21 +109,28 @@ class _VRAEC(nn.Module):
         self.tanh = nn.Tanh()
         self.maxpool = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1)
         self.layer1, self.vl1 = self._make_layer(block, layer_size, layers[0])
-        self.layer2, self.vl2 = self._make_layer(block, layer_size, layers[1], stride=2)
-        self.layer3, self.vl3 = self._make_layer(block, layer_size, layers[2], stride=2)
-        self.layer4, self.vl4 = self._make_layer(block, layer_size, layers[3], stride=2)
+        self.layer2, self.vl2 = self._make_layer(
+            block, layer_size, layers[1], stride=2)
+        self.layer3, self.vl3 = self._make_layer(
+            block, layer_size, layers[2], stride=2)
+        self.layer4, self.vl4 = self._make_layer(
+            block, layer_size, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(7, stride=1)
         self.fc = nn.Linear(layer_size * block.expansion, output_channels)
 
-        
-        self.deconv1    = nn.ConvTranspose2d(64, 3, kernel_size=8, stride=2, padding=3)
-        self.unpool     = nn.ConvTranspose2d(64, 64, kernel_size=2, stride=2, padding=0)
-        self.unlayer1   = nn.ConvTranspose2d(block.expansion * layer_size, 64, kernel_size=3, padding=1)
-        self.unlayer2   = nn.ConvTranspose2d(block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
-        self.unlayer3   = nn.ConvTranspose2d(block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
-        self.unlayer4   = nn.ConvTranspose2d(block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
-        
-        
+        self.deconv1 = nn.ConvTranspose2d(
+            64, 3, kernel_size=8, stride=2, padding=3)
+        self.unpool = nn.ConvTranspose2d(
+            64, 64, kernel_size=2, stride=2, padding=0)
+        self.unlayer1 = nn.ConvTranspose2d(
+            block.expansion * layer_size, 64, kernel_size=3, padding=1)
+        self.unlayer2 = nn.ConvTranspose2d(
+            block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
+        self.unlayer3 = nn.ConvTranspose2d(
+            block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
+        self.unlayer4 = nn.ConvTranspose2d(
+            block.expansion * layer_size, block.expansion * layer_size, kernel_size=4, stride=2, padding=1)
+
         self.ae_layers = {
             0: (self.conv1, self.deconv1),
             1: (self.unpool, ),
@@ -130,7 +141,7 @@ class _VRAEC(nn.Module):
             6: (self.avgpool,),
             7: (self.fc,)
         }
-        
+
         self.var_layers = {
             0: None,
             1: None,
@@ -138,7 +149,7 @@ class _VRAEC(nn.Module):
             3: self.vl2,
             4: self.vl3,
             5: self.vl4,
-            6: None # sentinel
+            6: None  # sentinel
         }
 
         for m in self.modules():
@@ -161,7 +172,7 @@ class _VRAEC(nn.Module):
         layers.append(block(self.inplanes, planes, stride, downsample))
         layers[0].conv2.is_variational = False
         self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
+        for _ in range(1, blocks):
             b = block(self.inplanes, planes)
             b.conv2.is_variational = False
             layers.append(b)
@@ -170,47 +181,46 @@ class _VRAEC(nn.Module):
 
     def forward(self, x):
         # input size: torch.Size([2, 3, 224, 224])
-        
+
         x = self.conv1(x)
         x = self.relu(x)
         # after convo1: torch.Size([2, 64, 112, 112])
-        
+
         x = self.maxpool(x)
         # after maxpool: torch.Size([2, 64, 56, 56])
 
         x = self.layer1(x)
         vl = self.vl1.varloss
         # after layer 1: torch.Size([2, 96, 56, 56])
-        
+
         x = self.layer2(x)
         vl = vl + self.vl2.varloss
         # after layer 2: torch.Size([2, 96, 28, 28])
-        
+
         x = self.layer3(x)
         vl = vl + self.vl3.varloss
         # after layer 3: torch.Size([2, 96, 14, 14])
-        
+
         x = self.layer4(x)
         vl = vl + self.vl4.varloss
         # after layer 4: torch.Size([2, 96, 7, 7])
-        
+
         x = self.avgpool(x)
         # after avgpool: torch.Size([2, 96, 1, 1])
-        
+
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
         return x, vl
-    
+
     def encode(self, x, nb_layers):
         px = x
         x = self.relu(self.conv1(x))
-        
-        poolpos = None
-        if nb_layers>=1:
+
+        if nb_layers >= 1:
             px = x
             x = self.maxpool(x)
-        
+
         layers = {
             2: (self.layer1, 'l1', self.vl1),
             3: (self.layer2, 'l2', self.vl2),
@@ -225,9 +235,9 @@ class _VRAEC(nn.Module):
             px = x
             x = layers[l][0](x)
             vl = vl + layers[l][2].varloss
-        
+
         return x, px, vl
-    
+
     def set_variational(self, lnum, status):
         layers = {
             2: self.vl1,
@@ -238,47 +248,46 @@ class _VRAEC(nn.Module):
         if lnum in layers:
             l = layers[lnum]
             l.conv2.is_variational = status
-    
+
     def decode(self, x, layers):
         if 5 in layers:
             x = self.relu(self.unlayer4(x))
-        
+
         if 4 in layers:
             x = self.relu(self.unlayer3(x))
-        
+
         if 3 in layers:
             x = self.relu(self.unlayer2(x))
-        
+
         if 2 in layers:
             x = self.relu(self.unlayer1(x))
-        
+
         if 1 in layers:
             x = self.unpool(x)
-        
+
         if 0 in layers:
             x = self.tanh(self.deconv1(x))
         return x
-    
+
     def train(self, x, optimizer, loss_function, layer_num=6):
         enc, penc, vl = self.encode(x, layer_num)
         dec = self.decode(enc, (layer_num,))
         optimizer.zero_grad()
         loss = loss_function(dec, penc.detach())
-        
-        if not vl is 0:
+
+        if vl is not 0:
             loss = loss + vl / (vl.item()/loss.item())
         loss.backward()
         optimizer.step()
         return loss.item()
-        
-    
+
     def finetune(self, x, optimizer, loss_function, layer_num=6):
         layers = range(layer_num+1)
         enc, _, vl = self.encode(x, layer_num)
         dec = self.decode(enc, layers)
         optimizer.zero_grad()
         loss = loss_function(dec, x)
-        if not vl is 0:
+        if vl is not 0:
             loss = loss + vl / (vl.item()/loss.item())
         loss.backward()
         optimizer.step()
@@ -286,7 +295,7 @@ class _VRAEC(nn.Module):
 
     def select_parameters(self, layers=range(8)):
         res = list()
-        
+
         for l in layers:
             for layer in self.ae_layers[l]:
                 for p in layer.parameters():
@@ -303,7 +312,8 @@ def vraec18(pretrained=False, **kwargs):
     model = _VRAEC(_VariationalBasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
         try:
-            model.load_state_dict(model_zoo.load_url(model_urls['resnet18']), strict=False)
+            model.load_state_dict(model_zoo.load_url(
+                model_urls['resnet18']), strict=False)
         except Exception as exp:
             logging.warning(exp)
     return model
@@ -318,7 +328,8 @@ def vraec34(pretrained=False, **kwargs):
     model = _VRAEC(_VariationalBasicBlock, [3, 4, 6, 3], **kwargs)
     if pretrained:
         try:
-            model.load_state_dict(model_zoo.load_url(model_urls['resnet34']), strict=False)
+            model.load_state_dict(model_zoo.load_url(
+                model_urls['resnet34']), strict=False)
         except Exception as exp:
             logging.warning(exp)
     return model
@@ -333,7 +344,8 @@ def vraec50(pretrained=False, **kwargs):
     model = _VRAEC(_VariationalBottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
         try:
-            model.load_state_dict(model_zoo.load_url(model_urls['resnet50']), strict=False)
+            model.load_state_dict(model_zoo.load_url(
+                model_urls['resnet50']), strict=False)
         except Exception as exp:
             logging.warning(exp)
     return model
@@ -348,7 +360,8 @@ def vraec101(pretrained=False, **kwargs):
     model = _VRAEC(_VariationalBottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
         try:
-            model.load_state_dict(model_zoo.load_url(model_urls['resnet101']), strict=False)
+            model.load_state_dict(model_zoo.load_url(
+                model_urls['resnet101']), strict=False)
         except Exception as exp:
             logging.warning(exp)
     return model
@@ -363,7 +376,8 @@ def vraec152(pretrained=False, **kwargs):
     model = _VRAEC(_VariationalBottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
         try:
-            model.load_state_dict(model_zoo.load_url(model_urls['resnet152']), strict=False)
+            model.load_state_dict(model_zoo.load_url(
+                model_urls['resnet152']), strict=False)
         except Exception as exp:
             logging.warning(exp)
     return model
