@@ -27,7 +27,7 @@ setup(
         'torchvision',
     ],
     package_data={
-        '': ['*.pth', '*.json'],
+        '': ['*.json', '*.tgc'],
     },
     entry_points={
         'console_scripts': [
