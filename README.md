@@ -26,14 +26,22 @@ Finally, run the test:
 sh test/test.sh
 ```
 
+** Important: ** The test makes sure that the system does work. For
+speed reasons, a very small neural network is used and applied only to
+the top-left corner of the image, therefore the quality of the results
+will be of poor quality.
+
 ## Models
 
-Models bundled with the tool:
-
-  * network-epoch-99-settings-011.pth: TODO describe
+The model classifier-1.tgc is based on a ResNet-18, with less neurons
+per layer than the usual model. It was briefly trained on 12 classes:
+Adornment, Antiqua, Bastarda, Book covers and other irrelevant data,
+Empty Pages, Fraktur, Griechisch, Hebräisch, Kursiv, Rotunda, Textura,
+and Woodcuts - Engravings.
 
 ## Performance
 
-The smaller the `stride`, the longer the runtime, the more accurate the result. TODO
+The smaller the `stride`, the longer the runtime, the more accurate the
+result are.
 
 
