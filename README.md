@@ -13,6 +13,9 @@ source ocrd-venv3/bin/activate
 pip3 install ocrd
 ```
 
+Enter in the folder containing the tool:
+```cd ocrd_typegroups_classifier/```
+
 Install the module and its dependencies
 
 ```
