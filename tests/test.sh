@@ -3,7 +3,7 @@ set -ex
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-net="${SCRIPTDIR}/../ocrd_typegroups_classifier/models/classifier-9.tgc"
+net="${SCRIPTDIR}/../ocrd_typegroups_classifier/models/classifier.tgc"
 
 cd "$SCRIPTDIR/assets/pembroke_werke_1766/data"
 ocrd-typegroups-classifier \

@@ -3,8 +3,9 @@ import torch
 import pickle
 from torchvision import transforms
 
-from .classmap import ClassMap
-from .classmap import IndexRemap
+from ocrd_typegroups_classifier.data.classmap import ClassMap
+from ocrd_typegroups_classifier.data.classmap import IndexRemap
+
 
 
 class TypegroupsClassifier:
@@ -63,6 +64,7 @@ class TypegroupsClassifier:
                 be loaded.
         
         """
+        
         if type(input) is str:
             f = open(input, 'rb')
             res = cls.load(f)
@@ -118,7 +120,10 @@ class TypegroupsClassifier:
         selection = label!=-1
         return sample[selection], label[selection]
     
-    def run(self, pil_image, stride, batch_size=2, score_as_key=False):
+    def run(self, pil_image, stride, batch_size=32, score_as_key=False):
+        return self.classify(pil_image, stride, batch_size, score_as_key)
+    
+    def classify(self, pil_image, stride, batch_size, score_as_key=False):
         """ Classifies a PIL image, returning a map with class names and
             corresponding scores.
             
