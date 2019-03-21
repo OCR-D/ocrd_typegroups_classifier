@@ -8,7 +8,7 @@ net="${SCRIPTDIR}/../ocrd_typegroups_classifier/models/classifier.tgc"
 cd "$SCRIPTDIR/assets/pembroke_werke_1766/data"
 ocrd-typegroups-classifier \
     -l DEBUG \
-    -g FILE_0010_DEFAULT \
+    -g PHYS_0011 \
     -m mets.xml \
     -I DEFAULT \
     -O "OCR-D-FONTIDENT" \

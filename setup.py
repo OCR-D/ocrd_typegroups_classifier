@@ -11,6 +11,7 @@ setup(
     version='0.0.1',
     description='Typegroups classifier for OCR',
     long_description=README,
+    long_description_content_type='text/markdown',
     author='Matthias Seuret, Konstantin Baierer',
     author_email='seuretm@users.noreply.github.com',
     url='https://github.com/seuretm/ocrd_typegroups_classifier',
@@ -19,7 +20,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'click',
-        'ocrd >= 0.11.0',
+        'ocrd >= 1.0.0b6',
         'pandas',
         'Pillow >= 5.3.0',
         'scikit-image',

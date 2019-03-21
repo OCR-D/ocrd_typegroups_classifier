@@ -11,6 +11,7 @@ help:
 	@echo "    install    pip install -e ."
 	@echo "    uninstall  pip uninstall $(PKG_NAME)"
 	@echo "    assets     Fetch test assets"
+	@echo "    test       Run tests"
 	@echo ""
 	@echo "  Variables"
 	@echo ""
