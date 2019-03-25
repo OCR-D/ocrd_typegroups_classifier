@@ -20,7 +20,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'click',
-        'ocrd >= 1.0.0b6',
+        'ocrd >= 1.0.0b7',
         'pandas',
         'Pillow >= 5.3.0',
         'scikit-image',

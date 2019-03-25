@@ -5,7 +5,9 @@ Wrap TypegroupsClassifier as an ocrd.Processor
 from ocrd import Processor
 from ocrd_utils import getLogger, concat_padded, MIMETYPE_PAGE
 from ocrd_models.ocrd_page import (
-    to_xml
+    to_xml,
+
+    TextStyleType
 )
 from ocrd_modelfactory import page_from_file
 
@@ -63,7 +65,12 @@ class TypegroupsClassifierProcessor(Processor):
                         output = '%s, ' % output
                     output = '%s%s:%d' % (output, result_map[k], round(100*k))
                 self.log.debug('Detected %s' % output)
-                pcgts.get_Page().set_primaryScript(output)
+                page = pcgts.get_Page()
+                textStyle = page.get_TextStyle()
+                if not textStyle:
+                    textStyle = TextStyleType()
+                    page.set_TextStyle(textStyle)
+                textStyle.set_fontFamily(output)
                 ID = concat_padded(self.output_file_grp, input_file.ID)
                 self.workspace.add_file(
                     ID=ID,
