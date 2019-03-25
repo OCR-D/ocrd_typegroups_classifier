@@ -61,6 +61,10 @@ class ClassMap:
         for c in basemap:
             self.cl2id[c] = basemap[c]
             self.id2cl[basemap[c]] = c
+    
+    def forget_class(self, target):
+        del self.id2cl[self.cl2id[target]]
+        del self.cl2id[target]
        
     def get_target_transform(self, dataset_classes):
         """ Creates a transform from a map (class name to id) to the
