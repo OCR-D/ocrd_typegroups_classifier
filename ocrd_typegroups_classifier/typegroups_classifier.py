@@ -2,6 +2,7 @@ import _io
 import torch
 import pickle
 from torchvision import transforms
+from PIL import Image
 
 from ocrd_typegroups_classifier.data.classmap import ClassMap
 from ocrd_typegroups_classifier.data.classmap import IndexRemap
@@ -149,6 +150,8 @@ class TypegroupsClassifier:
                 or false.
         """
         
+        if pil_image.size[0]>1000:
+            pil_image = pil_image.resize((1000, round(pil_image.size[1]*1000.0/pil_image.size[0])), Image.BILINEAR)
         tensorize = transforms.ToTensor()
         was_training = self.network.training
         self.network.eval()
