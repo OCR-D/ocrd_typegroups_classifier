@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import pickle
 from torch import nn
@@ -7,6 +8,9 @@ from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from torch.optim.lr_scheduler import LambdaLR
 from tqdm import tqdm
+
+sys.path.append("../ocrd_typegroups_classifier")
+
 from ocrd_typegroups_classifier.network.vraec import vraec18
 from ocrd_typegroups_classifier.network.vraec import vraec50
 from ocrd_typegroups_classifier.typegroups_classifier import TypegroupsClassifier
