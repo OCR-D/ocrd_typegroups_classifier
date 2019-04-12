@@ -23,14 +23,16 @@ sys.path.append("../ocrd_typegroups_classifier")
 from ocrd_typegroups_classifier.typegroups_classifier import TypegroupsClassifier
 
 parser = argparse.ArgumentParser()
-parser.add_argument("network", help="path to the network (.tgc) file", type=str)
-parser.add_argument("input", help="input page image", type=str)
-parser.add_argument("output", help="output file base", type=str)
+parser.add_argument('network', help="path to the network (.tgc) file", type=str)
+parser.add_argument('input', help="input page image", type=str)
+parser.add_argument('output', help="output file base", type=str)
+parser.add_argument('-c', '--crop', help="size of the crops", type=int, default=53)
+parser.add_argument('-s', '--stride', help="stride", type=int, default=None)
 args = parser.parse_args()
 
 # Feel free to change it
-stride = 53
-crop_size = 53
+stride = args.crop if args.stride is None else args.stride
+crop_size = args.crop
 
 # If you use a GPU, switch to 32 or 64
 batch_size = 1
