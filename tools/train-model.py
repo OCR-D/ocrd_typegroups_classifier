@@ -15,6 +15,8 @@ from ocrd_typegroups_classifier.network.vraec import vraec101
 from ocrd_typegroups_classifier.network.vraec import vraec50
 from ocrd_typegroups_classifier.typegroups_classifier import TypegroupsClassifier
 from ocrd_typegroups_classifier.data.qloss import QLoss
+from ocrd_typegroups_classifier.data.binarization import Otsu
+from ocrd_typegroups_classifier.data.binarization import Sauvola
 
 # Loading and preparing the network
 vraec = vraec101(layer_size=96, output_channels=12)
@@ -64,6 +66,10 @@ trans = transforms.Compose([
     #transforms.RandomResizedCrop(224, scale=(0.25, 1.0), ratio=(0.9, 1.11), interpolation=2),
     transforms.ColorJitter(brightness=0.7, contrast=0.7, saturation=0.3, hue=0.02),
     QLoss(min_q=2, max_q=60),
+    transforms.RandomChoice([
+        transforms.randomApply((Otsu(),), p=0.1),
+        transforms.randomApply((Sauvola(2, 8),), p=0.05)
+    ]),
     transforms.ToTensor()
 ])
 #training = ImageFolder('/cluster/seuret/patches/all', transform=trans)
