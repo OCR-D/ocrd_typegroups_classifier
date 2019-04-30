@@ -42,9 +42,10 @@ Adornment, Antiqua, Bastarda, Book covers and other irrelevant data,
 Empty Pages, Fraktur, Griechisch, Hebräisch, Kursiv, Rotunda, Textura,
 and Woodcuts - Engravings.
 
-## Performance
+## Heatmap Generation ##
+Given a trained model, it is possible to produce heatmaps corresponding
+to classification results. Syntax:
 
-The smaller the `stride`, the longer the runtime, the more accurate the
-result are.
-
-
+```
+python3 tools/heatmap.py ocrd_typegroups_classifier/models/classifier.tgc sample.jpg out
+```
