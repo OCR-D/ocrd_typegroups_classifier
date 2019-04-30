@@ -11,13 +11,13 @@ from tqdm import tqdm
 
 sys.path.append("../ocrd_typegroups_classifier")
 
-from ocrd_typegroups_classifier.network.vraec import vraec18
+from ocrd_typegroups_classifier.network.vraec import vraec101
 from ocrd_typegroups_classifier.network.vraec import vraec50
 from ocrd_typegroups_classifier.typegroups_classifier import TypegroupsClassifier
 from ocrd_typegroups_classifier.data.qloss import QLoss
 
 # Loading and preparing the network
-vraec = vraec50(layer_size=96, output_channels=11)
+vraec = vraec101(layer_size=96, output_channels=12)
 for l in range(2, 6):
     vraec.set_variational(l, False)
 use_variational_layer = True
@@ -37,14 +37,15 @@ tgc = TypegroupsClassifier(
         'antiqua':0,
         'bastarda':1,
         'fraktur':2,
-        'griechisch':3,
-        'hebräisch':4,
-        'kursiv':5,
-        'rotunda':6,
-        'schwabacher':7,
-        'textura':8,
-        'andere_schrift':9,
-        'nicht_schrift':10
+        'gotico_antiqua':3,
+        'griechisch':4,
+        'hebräisch':5,
+        'kursiv':6,
+        'rotunda':7,
+        'schwabacher':8,
+        'textura':9,
+        'andere_schrift':10,
+        'nicht_schrift':11
     },
     vraec
 )
@@ -56,13 +57,13 @@ if os.path.exists(os.path.join('ocrd_typegroups_classifier', 'models', 'classifi
 # transforms sequentially is not the same as having only one with
 # a larger range.
 trans = transforms.Compose([
-    transforms.RandomAffine(3, shear=3),
-    transforms.RandomAffine(3, shear=3),
-    transforms.RandomAffine(3, shear=3),
-    #transforms.RandomCrop(224),
-    transforms.RandomResizedCrop(224, scale=(0.25, 1.0), ratio=(0.9, 1.11), interpolation=2),
+    transforms.RandomAffine(5, shear=3),
+    transforms.RandomAffine(5, shear=3),
+    transforms.RandomAffine(5, shear=3),
+    transforms.RandomCrop(224),
+    #transforms.RandomResizedCrop(224, scale=(0.25, 1.0), ratio=(0.9, 1.11), interpolation=2),
     transforms.ColorJitter(brightness=0.7, contrast=0.7, saturation=0.3, hue=0.02),
-    QLoss(min_q=5, max_q=80),
+    QLoss(min_q=2, max_q=60),
     transforms.ToTensor()
 ])
 #training = ImageFolder('/cluster/seuret/patches/all', transform=trans)
@@ -70,14 +71,14 @@ trans = transforms.Compose([
 training = ImageFolder('../labelbox/training_data', transform=trans)
 training.target_transform = tgc.classMap.get_target_transform(training.class_to_idx)
 
-test = ImageFolder('../rescaled-test-data-german/', transform=None)
-test.target_transform = tgc.classMap.get_target_transform(test.class_to_idx)
-best_test = 0
+validation = ImageFolder('../labelbox/validation_data', transform=None)
+validation.target_transform = tgc.classMap.get_target_transform(validation.class_to_idx)
+best_validation = 0
 
 data_loader = torch.utils.data.DataLoader(training,
-                                          batch_size=32,
+                                          batch_size=36,
                                           shuffle=True,
-                                          num_workers=4)
+                                          num_workers=6)
 
 # Iterating over the data
 print('Starting the training - grab a coffee and a good book!')
@@ -123,9 +124,9 @@ for epoch in range(200):
     bad  = 0
     with torch.no_grad():
         tgc.network.eval()
-        for idx in tqdm(range(test.__len__()), desc='Evaluation'):
-            sample, target = test.__getitem__(idx)
-            path, _ = test.samples[idx]
+        for idx in tqdm(range(validation.__len__()), desc='Evaluation'):
+            sample, target = validation.__getitem__(idx)
+            path, _ = validation.samples[idx]
             if target==-1:
                 continue
             result = tgc.classify(sample, 224, 64, True)
@@ -147,9 +148,9 @@ for epoch in range(200):
     print('     Bad:', bad)
     print('Accuracy:', accuracy)
     
-    if accuracy>best_test:
+    if accuracy>best_validation:
         tgc.save(os.path.join('ocrd_typegroups_classifier', 'models', 'classifier.tgc'))
-        best_test = accuracy
+        best_validation = accuracy
         print('Network saved')
 
 
