@@ -165,13 +165,13 @@ class TypegroupsClassifier:
                     batch.append(crop)
                     if len(batch) >= batch_size:
                         tensors = torch.stack(batch).to(self.dev)
-                        out, _, _ = self.network(tensors)
+                        out = self.network(tensors)
                         score += out.sum(0)
                         processed_samples += len(batch)
                         batch = []
             if batch:
                 tensors = torch.stack(batch).to(self.dev)
-                out, _, _ = self.network(tensors)
+                out = self.network(tensors)
                 score += out.sum(0)
                 processed_samples += len(batch)
                 batch = []
