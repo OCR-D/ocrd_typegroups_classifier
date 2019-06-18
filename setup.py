@@ -24,7 +24,7 @@ setup(
         'pandas',
         'Pillow >= 5.3.0',
         'scikit-image',
-        'torch',
+        'torch >= 1.1.0',
         'torchvision',
     ],
     package_data={
