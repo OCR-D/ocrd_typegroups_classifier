@@ -73,7 +73,10 @@ class Otsu(object):
         """
         
         arr = np.array(img.convert('LA'))
-        t = filters.threshold_otsu(arr)
+        try:
+                t = filters.threshold_otsu(arr)
+        except:
+                return img # probably single-value image
         arr[arr<t]  =   0
         arr[arr>=t] = 255
         return Image.fromarray(arr).convert('RGB')
