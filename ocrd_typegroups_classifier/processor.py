@@ -61,9 +61,12 @@ class TypegroupsClassifierProcessor(Processor):
                     noise_highscore, script_highscore)
             else:
                 for k in sorted(result_map, reverse=True):
+                    intk = round(100*k)
+                    if intk<=0:
+                        continue
                     if output != '':
                         output = '%s, ' % output
-                    output = '%s%s:%d' % (output, result_map[k], round(100*k))
+                    output = '%s%s:%d' % (output, result_map[k], intk)
                 self.log.debug('Detected %s' % output)
                 page = pcgts.get_Page()
                 textStyle = page.get_TextStyle()
