@@ -15,11 +15,11 @@ ocrd-typegroups-classifier \
     -p <(echo '{"network": "'"$net"'", "stride":143}')
 
 expected_fontfamily='fraktur'
-if ! egrep -q "<pc:TextStyle fontFamily=\"$expected_fontfamily.*" OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT; then
+if egrep -q "<pc:TextStyle fontFamily=\"$expected_fontfamily.*" OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT; then
+    echo 'Good classification result:'
+    grep '<pc:TextStyle fontFamily=' OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT
+else
     echo 'Bad classification result:'
     grep '<pc:TextStyle fontFamily=' OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT
     exit 1
-else
-    echo 'Good classification result:'
-    grep '<pc:TextStyle fontFamily=' OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT
 fi
