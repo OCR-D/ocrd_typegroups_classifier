@@ -65,6 +65,15 @@ class ClassMap:
     def forget_class(self, target):
         del self.id2cl[self.cl2id[target]]
         del self.cl2id[target]
+    
+    def translate(self, dictionary):
+        for name in self.cl2id:
+            if not name in dictionary:
+                continue
+            n = self.cl2id[name]
+            del self.cl2id[name]
+            self.cl2id[dictionary[name]] = n
+            self.id2cl[n] = dictionary[name]
        
     def get_target_transform(self, dataset_classes):
         """ Creates a transform from a map (class name to id) to the
