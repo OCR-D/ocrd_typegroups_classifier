@@ -22,9 +22,9 @@ setup(
         'click',
         'ocrd >= 1.0.0b7',
         'pandas',
-        'Pillow >= 5.3.0',
+        'Pillow == 5.4.1',
         'scikit-image',
-        'torch >= 1.1.0',
+        'torch >= 1.2.0',
         'torchvision',
     ],
     package_data={
