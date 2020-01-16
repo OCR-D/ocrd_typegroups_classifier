@@ -8,7 +8,7 @@ with codecs.open('README.md', encoding='utf-8') as f:
 
 setup(
     name='ocrd_typegroups_classifier',
-    version='0.0.1',
+    version='0.0.2',
     description='Typegroups classifier for OCR',
     long_description=README,
     long_description_content_type='text/markdown',
