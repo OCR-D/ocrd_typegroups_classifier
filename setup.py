@@ -20,11 +20,11 @@ setup(
     include_package_data=True,
     install_requires=[
         'click',
-        'ocrd >= 1.0.0b7',
+        'ocrd >= 2.0.2',
         'pandas',
-        'Pillow == 5.4.1',
+        'Pillow == 6.2.1',
         'scikit-image',
-        'torch >= 1.2.0',
+        'torch >= 1.3.1',
         'torchvision',
     ],
     package_data={
