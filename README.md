@@ -58,6 +58,24 @@ is trained on the following 12 classes:
 
 - not_a_font
 
+The confusion matrix obtained with a DenseNet-121 on the pages with a single font from the dataset (see "Training a classifier" below) is:
+
+|                | Antiqua | Bastarda | Fraktur | Got.-Ant. | Greek | Hebrew | Italic | Rotunda | Schwabacher | Textura | Other font | Not a font | Recall |
+|----------------|---------|----------|---------|-----------|-------|--------|--------|---------|-------------|---------|------------|------------|--------|
+| Antiqua        | 1531    |          | 10      |           |       |        | 5      | 2       |             |         |            | 5          | 98.6%  |
+| Bastarda       |         | 286      |         |           |       |        |        | 6       | 10          | 1       |            |            | 94.4   |
+| Fraktur        |         |          | 1933    |           |       |        |        | 1       | 5           | 1       |            | 2          | 99.5%  |
+| Gotico-Antiqua |         |          |         | 269       |       |        |        |         |             | 1       |            |            | 99.6   |
+| Greek          |         |          |         |           | 58    | 1      |        |         |             |         | 1          |            | 96.7%  |
+| Hebrew         |         |          |         |           | 1     | 326    |        |         |             |         |            |            | 99.7%  |
+| Italic         |         |          | 1       |           |       |        | 187    |         |             |         |            |            | 99.5%  |
+| Rotunda        |         |          |         | 9         |       |        |        | 1495    | 5           | 11      |            | 1          | 98.3%  |
+| Schwabacher    |         | 16       | 4       |           |       |        |        | 2       | 452         |         |            |            | 95.4%  |
+| Textura        |         |          |         | 2         |       |        |        |         |             | 371     |            | 1          | 99.2%  |
+| Other font     |         |          |         |           |       |        |        |         |             |         | 288        | 15         | 94.1%  |
+| Not a font     | 4       |          | 2       | 2         | 1     |        | 5      | 1       | 7           |         | 4          | 2331       | 98.9%  |
+| Precision      | 99.7%   | 94.7%    | 99.1%   | 95.4%     | 96.7% | 99.4%  | 94.9%  | 99.1%   | 94.2%       | 96.4%   | 98.3%      | 99.0%      |        |
+
 ## Updating PyTorch
 If you update PyTorch, it is possible that the model cannot be loaded
 anymore. To solve this issue, proceed as follows.
