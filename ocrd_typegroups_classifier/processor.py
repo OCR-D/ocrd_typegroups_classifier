@@ -3,7 +3,12 @@ Wrap TypegroupsClassifier as an ocrd.Processor
 """
 
 from ocrd import Processor
-from ocrd_utils import getLogger, concat_padded, MIMETYPE_PAGE
+from ocrd_utils import (
+    getLogger,
+    make_file_id,
+    assert_file_grp_cardinality,
+    MIMETYPE_PAGE
+)
 from ocrd_models.ocrd_page import (
     to_xml,
 
@@ -24,6 +29,8 @@ class TypegroupsClassifierProcessor(Processor):
         self.log = getLogger('ocrd_typegroups_classifier')
 
     def process(self):
+        assert_file_grp_cardinality(self.input_file_grp, 1)
+        assert_file_grp_cardinality(self.output_file_grp, 1)
         network_file = self.parameter['network']
         stride = self.parameter['stride']
         classifier = TypegroupsClassifier.load(network_file)
@@ -75,9 +82,7 @@ class TypegroupsClassifierProcessor(Processor):
                     textStyle = TextStyleType()
                     page.set_TextStyle(textStyle)
                 textStyle.set_fontFamily(output)
-                file_id = input_file.ID.replace(self.input_file_grp, self.output_file_grp)
-                if file_id == input_file.ID:
-                    file_id = concat_padded(self.output_file_grp, n)
+                file_id = make_file_id(input_file, self.output_file_grp)
                 self.workspace.add_file(
                     ID=file_id,
                     file_grp=self.output_file_grp,
