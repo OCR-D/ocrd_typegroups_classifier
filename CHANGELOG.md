@@ -4,6 +4,8 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.1.0] - 2020-08-21
+
 Changed:
 
   * merge upstream, #2
