@@ -4,6 +4,8 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.1.1] - 2020-08-21
+
 Fixed:
 
   * missing `import json` from setup.py
@@ -17,6 +19,7 @@ Changed:
 
 
 <!-- link-labels -->
+[0.1.1]: ../../compare/v0.1.1...v0.1.0
 [0.1.0]: ../../compare/v0.1.0...v0.0.2
 [0.0.2]: ../../compare/v0.0.1...v0.0.2
 [0.0.2]: ../../compare/HEAD...v0.0.1
