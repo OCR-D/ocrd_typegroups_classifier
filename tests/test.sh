@@ -14,12 +14,13 @@ ocrd-typegroups-classifier \
     -O OCR-D-FONTIDENT \
     -p <(echo '{"network": "'"$net"'", "stride":143}')
 
+outfile="OCR-D-FONTIDENT/FILE_0010_OCR-D-FONTIDENT.xml"
 expected_fontfamily='fraktur'
-if egrep -q "<pc:TextStyle fontFamily=\"$expected_fontfamily.*" OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT; then
+if egrep -q "<pc:TextStyle fontFamily=\"$expected_fontfamily.*" "$outfile"; then
     echo 'Good classification result:'
-    grep '<pc:TextStyle fontFamily=' OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT
+    grep '<pc:TextStyle fontFamily=' "$outfile"
 else
     echo 'Bad classification result:'
-    grep '<pc:TextStyle fontFamily=' OCR-D-FONTIDENT/OCR-D-FONTIDENT_FILE_0010_DEFAULT
+    grep '<pc:TextStyle fontFamily=' "$outfile"
     exit 1
 fi
