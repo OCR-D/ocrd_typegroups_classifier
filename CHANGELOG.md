@@ -4,6 +4,10 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Fixed:
+
+  * missing `import json` from setup.py
+
 # [0.1.0] - 2020-08-21
 
 Changed:
