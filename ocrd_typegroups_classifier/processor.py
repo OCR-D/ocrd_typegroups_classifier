@@ -26,9 +26,9 @@ class TypegroupsClassifierProcessor(Processor):
         kwargs['ocrd_tool'] = OCRD_TOOL['tools']['ocrd-typegroups-classifier']
         kwargs['version'] = OCRD_TOOL['version']
         super(TypegroupsClassifierProcessor, self).__init__(*args, **kwargs)
-        self.log = getLogger('ocrd_typegroups_classifier')
 
     def process(self):
+        log = getLogger('ocrd_typegroups_classifier')
         assert_file_grp_cardinality(self.input_file_grp, 1)
         assert_file_grp_cardinality(self.output_file_grp, 1)
         network_file = self.parameter['network']
@@ -40,7 +40,7 @@ class TypegroupsClassifierProcessor(Processor):
 
         for n, input_file in enumerate(self.input_files):
             page_id = input_file.pageId or input_file.ID
-            self.log.info('Processing: %d / %s', n, page_id)
+            log.info('Processing: %d / %s', n, page_id)
             pcgts = page_from_file(self.workspace.download_file(input_file))
             page = pcgts.get_Page()
             pil_image, _, image_info = self.workspace.image_from_page(page, page_id)
@@ -65,7 +65,7 @@ class TypegroupsClassifierProcessor(Processor):
                     result_map[normalised_score] = typegroup
             if noise_highscore > script_highscore:
                 page.set_primaryScript(None)
-                self.log.warning(
+                log.warning(
                     'Detected only noise on page %s. noise_highscore=%s > script_highscore=%s',
                     page_id, noise_highscore, script_highscore)
             else:
@@ -76,7 +76,7 @@ class TypegroupsClassifierProcessor(Processor):
                     if output != '':
                         output = '%s, ' % output
                     output = '%s%s:%d' % (output, result_map[k], intk)
-                self.log.debug('Detected %s' % output)
+                log.debug('Detected %s' % output)
                 textStyle = page.get_TextStyle()
                 if not textStyle:
                     textStyle = TextStyleType()
