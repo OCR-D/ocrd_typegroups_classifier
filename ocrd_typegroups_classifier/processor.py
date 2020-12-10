@@ -9,9 +9,9 @@ from ocrd_utils import (
     assert_file_grp_cardinality,
     MIMETYPE_PAGE
 )
+from ocrd_utils import getLogger, make_file_id, MIMETYPE_PAGE
 from ocrd_models.ocrd_page import (
     to_xml,
-
     TextStyleType
 )
 from ocrd_modelfactory import page_from_file
@@ -28,6 +28,18 @@ class TypegroupsClassifierProcessor(Processor):
         super(TypegroupsClassifierProcessor, self).__init__(*args, **kwargs)
 
     def process(self):
+        """Classify historic script in pages and annotate as font style.
+
+        Open and deserialize PAGE input files and their respective images.
+        Then for each page, retrieve the raw image and feed it to the font
+        classifier. 
+
+        Post-process detections by filtering classes and thresholding scores.
+        Annotate the good predictions by name and score as a comma-separated
+        list under ``/PcGts/Page/TextStyle/@fontFamily``, if any.
+
+        Produce a new PAGE output file by serialising the resulting hierarchy.
+        """
         log = getLogger('ocrd_typegroups_classifier')
         assert_file_grp_cardinality(self.input_file_grp, 1)
         assert_file_grp_cardinality(self.output_file_grp, 1)
@@ -42,8 +54,14 @@ class TypegroupsClassifierProcessor(Processor):
             page_id = input_file.pageId or input_file.ID
             log.info('Processing: %d / %s', n, page_id)
             pcgts = page_from_file(self.workspace.download_file(input_file))
+            self.add_metadata(pcgts)
             page = pcgts.get_Page()
-            pil_image, _, image_info = self.workspace.image_from_page(page, page_id)
+            pil_image, _, image_info = self.workspace.image_from_page(
+                # prefer raw image (to meet expectation of the models, which
+                # have been trained on RGB images with both geometry and color
+                # transform random augmentation)
+                # maybe even: dewarped,deskewed ?
+                page, page_id, feature_filter='binarized,normalized,grayscale_normalized,despeckled')
             # todo: use image_info.resolution
             result = classifier.run(pil_image, stride)
             score_sum = 0
@@ -83,6 +101,7 @@ class TypegroupsClassifierProcessor(Processor):
                     page.set_TextStyle(textStyle)
                 textStyle.set_fontFamily(output)
                 file_id = make_file_id(input_file, self.output_file_grp)
+                pcgts.set_pcGtsId(file_id)
                 self.workspace.add_file(
                     ID=file_id,
                     file_grp=self.output_file_grp,
