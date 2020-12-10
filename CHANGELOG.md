@@ -4,6 +4,12 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Fixed:
+
+  * pass on pageID, ht @mikegerber
+  * use core's image API (`image_from_page`), ht @bertsky
+  * annotate `pcGtsId`, `Metadata`, document processor, ht @bertsky
+
 # [0.1.2] - 2020-10-14
 
 Fixed:
