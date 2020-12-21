@@ -1,11 +1,11 @@
 """
-OCR-D conformant command line interface
+standalone command line interface
 """
 import sys
 
 from PIL import Image
 
-from ..classifier import TypegroupsClassifier
+from ..typegroups_classifier import TypegroupsClassifier
 
 def cli():
     """
