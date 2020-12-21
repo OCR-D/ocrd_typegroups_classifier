@@ -4,6 +4,13 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.1.4] - 2020-12-21
+
+Fixed:
+
+  * imports in simple CLI, #5
+  * `--help`/`-h` for simple CLI, #6
+
 # [0.1.3] - 2020-12-10
 
 Fixed:
@@ -33,6 +40,7 @@ Changed:
 
 
 <!-- link-labels -->
+[0.1.4]: ../../compare/v0.1.4...v0.1.3
 [0.1.3]: ../../compare/v0.1.3...v0.1.2
 [0.1.2]: ../../compare/v0.1.2...v0.1.1
 [0.1.1]: ../../compare/v0.1.1...v0.1.0
