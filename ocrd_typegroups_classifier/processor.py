@@ -1,6 +1,7 @@
 """
 Wrap TypegroupsClassifier as an ocrd.Processor
 """
+from pkg_resources import resource_filename
 
 from ocrd import Processor
 from ocrd_utils import (
@@ -43,6 +44,8 @@ class TypegroupsClassifierProcessor(Processor):
         log = getLogger('ocrd_typegroups_classifier')
         assert_file_grp_cardinality(self.input_file_grp, 1)
         assert_file_grp_cardinality(self.output_file_grp, 1)
+        if 'network' not in self.parameter:
+            self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
         network_file = self.parameter['network']
         stride = self.parameter['stride']
         classifier = TypegroupsClassifier.load(network_file)
