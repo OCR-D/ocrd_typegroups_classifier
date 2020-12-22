@@ -17,7 +17,7 @@
         "network": {
           "description": "The file name of the neural network to use, including sufficient path information",
           "type": "string",
-          "required": true
+          "required": false
         },
         "stride": {
           "description": "Stride applied to the CNN on the image. Should be between 1 and 224. Smaller values increase the computation time.",

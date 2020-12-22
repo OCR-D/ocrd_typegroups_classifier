@@ -3,8 +3,6 @@ set -ex
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-net="${SCRIPTDIR}/../ocrd_typegroups_classifier/models/densenet121.tgc"
-
 cd "$SCRIPTDIR/assets/pembroke_werke_1766/data"
 ocrd-typegroups-classifier \
     -l DEBUG \
@@ -12,7 +10,7 @@ ocrd-typegroups-classifier \
     -m mets.xml \
     -I DEFAULT \
     -O OCR-D-FONTIDENT \
-    -p <(echo '{"network": "'"$net"'", "stride":143}')
+    -P stride 143
 
 outfile="OCR-D-FONTIDENT/FILE_0010_OCR-D-FONTIDENT.xml"
 expected_fontfamily='fraktur'
