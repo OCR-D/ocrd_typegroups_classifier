@@ -4,6 +4,12 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.3.0] - 2021-01-28
+
+Changed:
+
+  * Use `self.resolve_resource` to resolve `network` parameter, #8
+
 # [0.2.0] - 2020-12-22
 
 Changed:
@@ -46,6 +52,7 @@ Changed:
 
 
 <!-- link-labels -->
+[0.3.0]: ../../compare/v0.3.0...v0.2.0
 [0.2.0]: ../../compare/v0.2.0...v0.1.4
 [0.1.4]: ../../compare/v0.1.4...v0.1.3
 [0.1.3]: ../../compare/v0.1.3...v0.1.2
