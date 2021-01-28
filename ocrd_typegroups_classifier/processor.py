@@ -46,7 +46,7 @@ class TypegroupsClassifierProcessor(Processor):
         assert_file_grp_cardinality(self.output_file_grp, 1)
         if 'network' not in self.parameter:
             self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
-        network_file = self.parameter['network']
+        network_file = self.resolve_resource(self.parameter['network'])
         stride = self.parameter['stride']
         classifier = TypegroupsClassifier.load(network_file)
 
