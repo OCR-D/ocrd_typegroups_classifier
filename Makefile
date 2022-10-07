@@ -32,7 +32,7 @@ uninstall:
 	pip uninstall $(PKG_NAME)
 
 # Fetch test assets
-assets: test/assets
+assets: tests/assets
 
 repo/assets:
 	mkdir -p repo
@@ -44,3 +44,4 @@ test: repo/assets
 	cp -r repo/assets/data tests/assets
 	cd tests; bash test.sh
 
+.PHONY: help deps install uninstall test assets
