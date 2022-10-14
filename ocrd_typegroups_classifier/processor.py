@@ -9,8 +9,6 @@ from ocrd_utils import (
     getLogger,
     make_file_id,
     assert_file_grp_cardinality,
-    coordinates_of_segment,
-    image_from_polygon,
     MIMETYPE_PAGE
 )
 from ocrd_utils import getLogger, make_file_id, MIMETYPE_PAGE
@@ -121,8 +119,9 @@ class TypegroupsClassifierProcessor(Processor):
                 self._process_segment(page, page_image)
             else:
                 for region in page.get_AllRegions(classes=['Text']):
-                    region_polygon = coordinates_of_segment(region, page_image, page_coords)
-                    region_image = image_from_polygon(page_image, region_polygon)
+                    region_image, region_coords = self.workspace.image_from_segment(
+                        region, page_image, page_coords,
+                        feature_filter='binarized,normalized,grayscale_normalized,despeckled')
                     self._process_segment(region, region_image)
             file_id = make_file_id(input_file, self.output_file_grp)
             pcgts.set_pcGtsId(file_id)
