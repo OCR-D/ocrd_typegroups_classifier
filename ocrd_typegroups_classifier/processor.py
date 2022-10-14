@@ -21,7 +21,7 @@ from ocrd_modelfactory import page_from_file
 from .typegroups_classifier import TypegroupsClassifier
 from .constants import OCRD_TOOL
 
-IGNORE_TYPE = [
+IGNORED_TYPES = [
     'Adornment',
     'Book covers and other irrelevant data',
     'Empty Pages',
@@ -47,34 +47,36 @@ class TypegroupsClassifierProcessor(Processor):
     def _process_segment(self, segment, image):
         LOG = getLogger('ocrd_typegroups_classifier')
         result = self.classifier.run(image, self.parameter['stride'])
-        score_sum = 0
+        active_types = self.parameter['active_classes']
+        script_score_map = dict()
+        script_score_sum = 0
+        script_score_max = 0
+        ignore_score_max = 0
         for typegroup in self.classifier.classMap.cl2id:
-            if not typegroup in IGNORE_TYPE:
-                score_sum += max(0, result[typegroup])
-        script_highscore = 0
-        noise_highscore = 0
-        result_map = {}
-        for typegroup in self.classifier.classMap.cl2id:
-            score = result[typegroup]
-            if typegroup in IGNORE_TYPE:
-                noise_highscore = max(noise_highscore, score)
-            else:
-                script_highscore = max(script_highscore, score)
-                normalised_score = max(0, score / score_sum)
-                result_map[normalised_score] = typegroup
-        output = ''
-        if noise_highscore > script_highscore:
+            score = max(0, result[typegroup])
+            if len(active_types) and typegroup not in active_types:
+                ignore_score_max = max(ignore_score_max, score)
+                continue
+            if typegroup in IGNORED_TYPES:
+                ignore_score_max = max(ignore_score_max, score)
+                continue
+            script_score_max = max(script_score_max, score)
+            script_score_sum += score
+            script_score_map[typegroup] = score
+        if ignore_score_max > script_score_max:
             segment.set_primaryScript(None)
-            LOG.warning('Detected only noise on "%s": noise_highscore=%s > script_highscore=%s',
-                        segment.id, noise_highscore, script_highscore)
+            LOG.warning('Detected only noise on "%s": noise_max=%.2f > script_max=%.2f',
+                        segment.id, ignore_score_max, script_score_max)
         else:
-            for k in sorted(result_map, reverse=True):
-                intk = round(100 * k)
-                if intk <= 0:
+            script_score_map = dict(sorted(script_score_map.items(), key=lambda x: x[1], reverse=True))
+            output = ''
+            for typegroup, score in script_score_map.items():
+                score = round(100 * score / script_score_sum)
+                if score <= 0:
                     continue
                 if output != '':
-                    output = '%s, ' % output
-                output = '%s%s:%d' % (output, result_map[k], intk)
+                    output += ', '
+                output += '%s:%d' % (typegroup, score)
             LOG.debug('Detected %s on "%s"', output, segment.id)
             textStyle = segment.get_TextStyle()
             if not textStyle:
