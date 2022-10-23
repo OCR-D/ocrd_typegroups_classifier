@@ -4,6 +4,10 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Fixed:
+
+  * `typegroups-classifier` simple CLI working again, #11
+
 # [0.3.0] - 2021-01-28
 
 Changed:
