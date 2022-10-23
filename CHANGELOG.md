@@ -4,6 +4,8 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.4.0] - 2021-10-23
+
 Added:
 
   * Support for classifying of sub-page elements, like regions, directed by parameter `level`, #12
@@ -61,6 +63,7 @@ Changed:
 
 
 <!-- link-labels -->
+[0.4.0]: ../../compare/v0.4.0...v0.3.0
 [0.3.0]: ../../compare/v0.3.0...v0.2.0
 [0.2.0]: ../../compare/v0.2.0...v0.1.4
 [0.1.4]: ../../compare/v0.1.4...v0.1.3
