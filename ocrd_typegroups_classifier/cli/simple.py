@@ -21,6 +21,6 @@ def cli():
     network_file = sys.argv[1]
     image_file = Image.open(sys.argv[2])
     stride = int(sys.argv[3]) if len(sys.argv) > 3 else 96
-    classifier = TypegroupsClassifier(network_file, stride)
-    result = classifier.run(image_file)
+    classifier = TypegroupsClassifier.load(network_file)
+    result = classifier.run(image_file, stride)
     print(result)
