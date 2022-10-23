@@ -14,10 +14,24 @@
       "input_file_grp": ["OCR-D-IMG"],
       "output_file_grp": ["OCR-D-IMG-FONTS"],
       "parameters": {
+        "level": {
+          "description": "The PAGE-XML hierarchy level to operate on",
+          "type": "string",
+          "enum": ["page", "region"],
+          "default": "page"
+        },
         "network": {
           "description": "The file name of the neural network to use, including sufficient path information",
           "type": "string",
           "required": false
+        },
+        "active_classes": {
+          "description": "Restrict the set of decoded font type groups to the given list; if empty, then allow all classes (i.e. antiqua/bastarda/fraktur/gotico_antiqua/greek/hebrew/italic/rotunda/schwabacher/textura/other_font/not_a_font)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
         },
         "stride": {
           "description": "Stride applied to the CNN on the image. Should be between 1 and 224. Smaller values increase the computation time.",
