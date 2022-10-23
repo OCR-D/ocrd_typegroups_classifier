@@ -4,6 +4,11 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Added:
+
+  * Support for classifying of sub-page elements, like regions, directed by parameter `level`, #12
+  * List of fonts to recognize can be restricted with new `active_classes` parameter, #12
+
 Fixed:
 
   * `typegroups-classifier` simple CLI working again, #11
