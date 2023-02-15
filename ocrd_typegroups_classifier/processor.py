@@ -119,12 +119,18 @@ class TypegroupsClassifierProcessor(Processor):
             # todo: use image_info.resolution
             if level == 'page':
                 self._process_segment(page, page_image)
-            else:
+            elif level == 'region':
                 for region in page.get_AllRegions(classes=['Text']):
                     region_image, region_coords = self.workspace.image_from_segment(
                         region, page_image, page_coords,
                         feature_filter='binarized,normalized,grayscale_normalized,despeckled')
                     self._process_segment(region, region_image)
+            else :
+                for line in page.get_AllTextLines():
+                    line_image, line_coords = self.workspace.image_from_segment(
+                        line, page_image, page_coords,
+                        feature_filter='binarized,normalized,grayscale_normalized,despeckled')
+                    # TODO add classification here with correct model
             file_id = make_file_id(input_file, self.output_file_grp)
             pcgts.set_pcGtsId(file_id)
             self.workspace.add_file(
