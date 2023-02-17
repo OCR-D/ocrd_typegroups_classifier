@@ -130,7 +130,8 @@ class TypegroupsClassifierProcessor(Processor):
                     line_image, line_coords = self.workspace.image_from_segment(
                         line, page_image, page_coords,
                         feature_filter='binarized,normalized,grayscale_normalized,despeckled')
-                    # TODO add classification here with correct model
+                    self._process_segment(line, line_image)
+
             file_id = make_file_id(input_file, self.output_file_grp)
             pcgts.set_pcGtsId(file_id)
             self.workspace.add_file(

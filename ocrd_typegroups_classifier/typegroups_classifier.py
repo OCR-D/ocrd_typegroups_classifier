@@ -25,7 +25,7 @@ class TypegroupsClassifier:
     
     """
     
-    def __init__(self, groups, network, device=None):
+    def __init__(self, groups, network, is_convolutional=True, device=None):
         """ Constructor of the class.
         
             Parameters
@@ -53,6 +53,7 @@ class TypegroupsClassifier:
         else:
             self.dev = device
         network.to(self.dev)
+        self.is_convolutional = is_convolutional
     
     @classmethod
     def load(cls, input):
@@ -120,10 +121,13 @@ class TypegroupsClassifier:
         
         selection = label!=-1
         return sample[selection], label[selection]
-    
+
     def run(self, pil_image, stride, batch_size=32, score_as_key=False):
-        return self.classify(pil_image, stride, batch_size, score_as_key)
-    
+        if self.is_convolutional :
+            return self.classify(pil_image, stride, batch_size, score_as_key)
+        else :
+            print("classify at line level")
+
     def classify(self, pil_image, stride, batch_size, score_as_key=False):
         """ Classifies a PIL image, returning a map with class names and
             corresponding scores.
