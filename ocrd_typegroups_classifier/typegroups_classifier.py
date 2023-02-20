@@ -122,6 +122,20 @@ class TypegroupsClassifier:
     def run(self, pil_image, **kwargs):
         pass
     
+
+    def map_score(self, score, score_as_key) :
+        """ maps score values to class names """
+
+        res = {}
+        for cl in self.classMap.cl2id:
+            cid = self.classMap.cl2id[cl]
+            if cid == -1:
+                continue
+            res[cl] = score[cid].item()
+        if score_as_key:
+            res = {s: c for c, s in res.items()}
+        return res
+
     def __repr__(self):
         """ returns a string description of the instance """
         
@@ -214,14 +228,8 @@ class PatchwiseTypegroupsClassifier(TypegroupsClassifier):
         if was_training:
             self.network.train()
         score /= processed_samples
-        res = {}
-        for cl in self.classMap.cl2id:
-            cid = self.classMap.cl2id[cl]
-            if cid == -1:
-                continue
-            res[cl] = score[cid].item()
-        if score_as_key:
-            res = {s: c for c, s in res.items()}
+
+        res = self.map_score(score, score_as_key)
         return res
     
 class ColTypegroupsClassifier(TypegroupsClassifier):
@@ -242,9 +250,12 @@ class ColTypegroupsClassifier(TypegroupsClassifier):
     
 
     def run(self, pil_image, **kwargs):
-        return self.classify(pil_image)
 
-    def classify(self, pil_image) :
+        score_as_key = kwargs.get('score_as_key', False)
+
+        return self.classify(pil_image, score_as_key)
+
+    def classify(self, pil_image, score_as_key) :
         """ Classifies a PIL image using a column classification strategy,
             returning a map with classes names and corresponding scores.
             
@@ -268,11 +279,7 @@ class ColTypegroupsClassifier(TypegroupsClassifier):
 
         tns = trans(pil_image).to(self.dev).unsqueeze(0)
         out = self.network(tns)
-        score = out.mean(axis=1)[0]       
-        res = {}
-        for cl in self.classMap.cl2id:
-            cid = self.classMap.cl2id[cl]
-            if cid == -1:
-                continue
-            res[cl] = score[cid].item()
+        score = out.mean(axis=1)[0]
+
+        res = self.map_score(score, score_as_key)
         return res
