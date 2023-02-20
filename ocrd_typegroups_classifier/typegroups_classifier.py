@@ -3,6 +3,8 @@ import torch
 import pickle
 from torchvision import transforms
 from PIL import Image
+import torch.nn.functional as F
+
 
 from ocrd_typegroups_classifier.data.classmap import ClassMap
 from ocrd_typegroups_classifier.data.classmap import IndexRemap
@@ -25,7 +27,7 @@ class TypegroupsClassifier:
     
     """
     
-    def __init__(self, groups, network, is_convolutional=True, device=None):
+    def __init__(self, groups, network, col_classifier=False, device=None):
         """ Constructor of the class.
         
             Parameters
@@ -53,7 +55,7 @@ class TypegroupsClassifier:
         else:
             self.dev = device
         network.to(self.dev)
-        self.is_convolutional = is_convolutional
+        self.col_classifier = col_classifier
     
     @classmethod
     def load(cls, input):
@@ -123,10 +125,43 @@ class TypegroupsClassifier:
         return sample[selection], label[selection]
 
     def run(self, pil_image, stride, batch_size=32, score_as_key=False):
-        if self.is_convolutional :
-            return self.classify(pil_image, stride, batch_size, score_as_key)
+        if self.col_classifier :
+            return self.classify_col(pil_image)
         else :
-            print("classify at line level")
+            return self.classify(pil_image, stride, batch_size, score_as_key)
+
+    def classify_col(self, pil_image) :
+        """ Classifies a PIL image using a column classifier network,
+            returning a map with classes names and corresponding scores.
+            
+            Parameters
+            ----------
+                pil_image : PIL image
+                    Image to classify
+
+            Returns
+            -------
+                A map between class names and scores, or scores and
+                class names, depending on whether score_as_key is true
+                or false. 
+        """
+        trans = transforms.Compose([transforms.Grayscale(), transforms.ToTensor()])
+ 
+        if pil_image.size[1]!=32:
+            ratio = 32 / pil_image.size[1]
+            width = int(pil_image.size[0] * ratio)
+            pil_image = pil_image.resize((width, 32), Image.Resampling.LANCZOS)
+
+        tns = trans(pil_image).to(self.dev).unsqueeze(0)
+        out = self.network(tns)
+        score = out.mean(axis=1)[0]       
+        res = {}
+        for cl in self.classMap.cl2id:
+            cid = self.classMap.cl2id[cl]
+            if cid == -1:
+                continue
+            res[cl] = score[cid].item()
+        return res
 
     def classify(self, pil_image, stride, batch_size, score_as_key=False):
         """ Classifies a PIL image, returning a map with class names and

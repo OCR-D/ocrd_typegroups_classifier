@@ -40,7 +40,11 @@ class TypegroupsClassifierProcessor(Processor):
 
     def setup(self):
         if 'network' not in self.parameter:
-            self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
+            if self.parameter['level'] == 'line' :
+                self.parameter['network'] = resource_filename(__name__, 'models/col_classifier.tgc')
+            else :
+                self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
+        
         network_file = self.resolve_resource(self.parameter['network'])
         self.classifier = TypegroupsClassifier.load(network_file)
 
