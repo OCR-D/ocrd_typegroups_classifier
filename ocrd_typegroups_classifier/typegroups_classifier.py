@@ -8,7 +8,7 @@ from PIL import Image
 from ocrd_typegroups_classifier.data.classmap import ClassMap
 from ocrd_typegroups_classifier.data.classmap import IndexRemap
 
-
+import torch.nn.functional as F
 
 class TypegroupsClassifier:
     """ Class wrapping type group information and a classifier.
@@ -280,6 +280,6 @@ class ColTypegroupsClassifier(TypegroupsClassifier):
         tns = trans(pil_image).to(self.dev).unsqueeze(0)
         out = self.network(tns)
         score = out.mean(axis=1)[0]
-
+        score = F.softmax(score, dim=0)
         res = self.map_score(score, score_as_key)
         return res
