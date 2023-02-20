@@ -3,7 +3,6 @@ import torch
 import pickle
 from torchvision import transforms
 from PIL import Image
-import torch.nn.functional as F
 
 
 from ocrd_typegroups_classifier.data.classmap import ClassMap
@@ -27,7 +26,7 @@ class TypegroupsClassifier:
     
     """
     
-    def __init__(self, groups, network, col_classifier=False, device=None):
+    def __init__(self, groups, network, device=None):
         """ Constructor of the class.
         
             Parameters
@@ -37,11 +36,8 @@ class TypegroupsClassifier:
                 Maps names to IDs with regard to the network outputs;
                 note that several names can point to the same ID, but
                 the inverse is not possible.
-            network:PyTorch network
-                This network has to have the same interface as the
-                VRAEC, return three values when being called: the
-                classification result, a variational loss, and a feature
-                vector.
+            network: PyTorch network
+                Classifier
             device: str
                 Device on which the data has to be processed; if not set,
                 then either the cpu or cuda:0 will be used.
@@ -55,7 +51,6 @@ class TypegroupsClassifier:
         else:
             self.dev = device
         network.to(self.dev)
-        self.col_classifier = col_classifier
     
     @classmethod
     def load(cls, input):
@@ -124,48 +119,50 @@ class TypegroupsClassifier:
         selection = label!=-1
         return sample[selection], label[selection]
 
-    def run(self, pil_image, stride, batch_size=32, score_as_key=False):
-        if self.col_classifier :
-            return self.classify_col(pil_image)
-        else :
-            return self.classify(pil_image, stride, batch_size, score_as_key)
+    def run(self, pil_image, **kwargs):
+        pass
+    
+    def __repr__(self):
+        """ returns a string description of the instance """
+        
+        format_string = self.__class__.__name__ + '('
+        format_string += '\n ClassMap: %s' % self.classMap
+        format_string += '\n Network:'
+        if self.network is None:
+            format_string += '\n  None'
+        else:
+            format_string += '\n%s\nEnd of network\n' % self.network
+        return format_string+'\n)'
+    
 
-    def classify_col(self, pil_image) :
-        """ Classifies a PIL image using a column classifier network,
-            returning a map with classes names and corresponding scores.
-            
-            Parameters
-            ----------
-                pil_image : PIL image
-                    Image to classify
+class PatchwiseTypegroupsClassifier(TypegroupsClassifier):
+    """ Classifier implementation for patch-wise strategies
+    
+        Attributes
+        ----------
+        
+        classMap: ClassMap
+            Maps class names to indices corresponding to what the network
+            outputs.
+        network: PyTorch network
+            Classifier
+        dev: str
+            Device on which the data must be processed
+    
+    """
+    
 
-            Returns
-            -------
-                A map between class names and scores, or scores and
-                class names, depending on whether score_as_key is true
-                or false. 
-        """
-        trans = transforms.Compose([transforms.Grayscale(), transforms.ToTensor()])
- 
-        if pil_image.size[1]!=32:
-            ratio = 32 / pil_image.size[1]
-            width = int(pil_image.size[0] * ratio)
-            pil_image = pil_image.resize((width, 32), Image.Resampling.LANCZOS)
+    def run(self, pil_image, **kwargs):
 
-        tns = trans(pil_image).to(self.dev).unsqueeze(0)
-        out = self.network(tns)
-        score = out.mean(axis=1)[0]       
-        res = {}
-        for cl in self.classMap.cl2id:
-            cid = self.classMap.cl2id[cl]
-            if cid == -1:
-                continue
-            res[cl] = score[cid].item()
-        return res
+        stride = kwargs['stride']
+        batch_size = kwargs.get('batch_size', 32) 
+        score_as_key = kwargs.get('score_as_key', False)
 
-    def classify(self, pil_image, stride, batch_size, score_as_key=False):
-        """ Classifies a PIL image, returning a map with class names and
-            corresponding scores.
+        return self.classify(pil_image, stride, batch_size, score_as_key)
+
+    def classify(self, pil_image, stride, batch_size, score_as_key):
+        """ Classifies a PIL image with a patch-wise strategy, 
+            returning a map with class names and corresponding scores.
             
             Parameters
             ----------
@@ -227,15 +224,55 @@ class TypegroupsClassifier:
             res = {s: c for c, s in res.items()}
         return res
     
-    def __repr__(self):
-        """ returns a string description of the instance """
-        
-        format_string = self.__class__.__name__ + '('
-        format_string += '\n ClassMap: %s' % self.classMap
-        format_string += '\n Network:'
-        if self.network is None:
-            format_string += '\n  None'
-        else:
-            format_string += '\n%s\nEnd of network\n' % self.network
-        return format_string+'\n)'
+class ColTypegroupsClassifier(TypegroupsClassifier):
+    """ Typegroups classifier implementation for column classification strategies
     
+        Attributes
+        ----------
+        
+        classMap: ClassMap
+            Maps class names to indices corresponding to what the network
+            outputs.
+        network: PyTorch network
+            Classifier
+        dev: str
+            Device on which the data must be processed
+    
+    """
+    
+
+    def run(self, pil_image, **kwargs):
+        return self.classify(pil_image)
+
+    def classify(self, pil_image) :
+        """ Classifies a PIL image using a column classification strategy,
+            returning a map with classes names and corresponding scores.
+            
+            Parameters
+            ----------
+                pil_image : PIL image
+                    Image to classify
+
+            Returns
+            -------
+                A map between class names and scores, or scores and
+                class names, depending on whether score_as_key is true
+                or false. 
+        """
+        trans = transforms.Compose([transforms.Grayscale(), transforms.ToTensor()])
+ 
+        if pil_image.size[1]!=32:
+            ratio = 32 / pil_image.size[1]
+            width = int(pil_image.size[0] * ratio)
+            pil_image = pil_image.resize((width, 32), Image.Resampling.LANCZOS)
+
+        tns = trans(pil_image).to(self.dev).unsqueeze(0)
+        out = self.network(tns)
+        score = out.mean(axis=1)[0]       
+        res = {}
+        for cl in self.classMap.cl2id:
+            cid = self.classMap.cl2id[cl]
+            if cid == -1:
+                continue
+            res[cl] = score[cid].item()
+        return res
