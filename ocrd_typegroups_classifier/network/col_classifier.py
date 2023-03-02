@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import json
 
 
-class NoDimRedBackbone(torch.nn.Module):
+class Backbone(torch.nn.Module):
     def __init__(self, output_dim=32):
         super().__init__()
         self.act = torch.nn.LeakyReLU()

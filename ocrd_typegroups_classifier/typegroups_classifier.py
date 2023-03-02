@@ -119,10 +119,6 @@ class TypegroupsClassifier:
         selection = label!=-1
         return sample[selection], label[selection]
 
-    def run(self, pil_image, **kwargs):
-        pass
-    
-
     def map_score(self, score, score_as_key) :
         """ maps score values to class names """
 
@@ -232,7 +228,7 @@ class PatchwiseTypegroupsClassifier(TypegroupsClassifier):
         res = self.map_score(score, score_as_key)
         return res
     
-class ColTypegroupsClassifier(TypegroupsClassifier):
+class ColwiseTypegroupsClassifier(TypegroupsClassifier):
     """ Typegroups classifier implementation for column classification strategies
     
         Attributes
@@ -249,14 +245,12 @@ class ColTypegroupsClassifier(TypegroupsClassifier):
     """
     
 
-    def run(self, pil_image, **kwargs):
-
-        score_as_key = kwargs.get('score_as_key', False)
+    def run(self, pil_image, score_as_key=False, **kwargs):
 
         return self.classify(pil_image, score_as_key)
 
     def classify(self, pil_image, score_as_key) :
-        """ Classifies a PIL image using a column classification strategy,
+        """ Classifies a PIL image using a column-wise strategy,
             returning a map with classes names and corresponding scores.
             
             Parameters

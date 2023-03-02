@@ -41,7 +41,7 @@ class TypegroupsClassifierProcessor(Processor):
     def setup(self):
         if 'network' not in self.parameter:
             if self.parameter['level'] == 'line' :
-                self.parameter['network'] = resource_filename(__name__, 'models/col_classifier.tgc')
+                self.parameter['network'] = resource_filename(__name__, 'models/colwise_classifier.tgc')
             else :
                 self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
         
