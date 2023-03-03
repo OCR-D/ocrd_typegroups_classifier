@@ -40,13 +40,21 @@ class TypegroupsClassifierProcessor(Processor):
 
     def setup(self):
         if 'network' not in self.parameter:
-            self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
+            if self.parameter['level'] == 'line' :
+                self.parameter['network'] = resource_filename(__name__, 'models/colwise_classifier.tgc')
+            else :
+                self.parameter['network'] = resource_filename(__name__, 'models/densenet121.tgc')
+        
         network_file = self.resolve_resource(self.parameter['network'])
         self.classifier = TypegroupsClassifier.load(network_file)
 
     def _process_segment(self, segment, image):
         LOG = getLogger('ocrd_typegroups_classifier')
-        result = self.classifier.run(image, self.parameter['stride'])
+        if self.parameter['level'] == 'line':
+            result = self.classifier.run(image)
+        else:
+            result = self.classifier.run(image, stride=self.parameter['stride'])
+
         active_types = self.parameter['active_classes']
         script_score_map = dict()
         script_score_sum = 0
@@ -119,12 +127,19 @@ class TypegroupsClassifierProcessor(Processor):
             # todo: use image_info.resolution
             if level == 'page':
                 self._process_segment(page, page_image)
-            else:
+            elif level == 'region':
                 for region in page.get_AllRegions(classes=['Text']):
                     region_image, region_coords = self.workspace.image_from_segment(
                         region, page_image, page_coords,
                         feature_filter='binarized,normalized,grayscale_normalized,despeckled')
                     self._process_segment(region, region_image)
+            else :
+                for line in page.get_AllTextLines():
+                    line_image, line_coords = self.workspace.image_from_segment(
+                        line, page_image, page_coords,
+                        feature_filter='binarized,normalized,grayscale_normalized,despeckled')
+                    self._process_segment(line, line_image)
+
             file_id = make_file_id(input_file, self.output_file_grp)
             pcgts.set_pcGtsId(file_id)
             self.workspace.add_file(

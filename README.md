@@ -41,8 +41,9 @@ sh test/test.sh
 
 ## Models
 
+### Densenet
 The model densenet121.tgc is based on a DenseNet with 121 layers, and
-is trained on the following 12 classes:
+is trained to classify pages or regions, on the following 12 classes:
 
 - Antiqua
 
@@ -85,6 +86,35 @@ The confusion matrix obtained with a DenseNet-121 on the pages with a single fon
 | Other font     |         |          |         |           |       |        |        |         |             |         | 288        | 15         | 94.1%  |
 | Not a font     | 4       |          | 2       | 2         | 1     |        | 5      | 1       | 7           |         | 4          | 2331       | 98.9%  |
 | Precision      | 99.7%   | 94.7%    | 99.1%   | 95.4%     | 96.7% | 99.4%  | 94.9%  | 99.1%   | 94.2%       | 96.4%   | 98.3%      | 99.0%      |        |
+
+### Colwise classifier
+The model colwise_classifier.tgc is based on a pixel column 
+classifier composed of an RNN and a CNN backbone, it is 
+trained to classify text lines on the following 12 classes :
+
+- Antiqua
+
+- Bastarda
+
+- Fraktur
+
+- Textura
+
+- Schwabacher
+
+- Greek
+
+- Italic
+
+- Hebrew
+
+- Gotico-antiqua
+
+- Manuscript
+
+- Rotunda
+
+- no class/ignore
 
 ## Updating PyTorch
 If you update PyTorch, it is possible that the model cannot be loaded
@@ -141,8 +171,8 @@ model from scratch.
 
 ## Training a classifier
 
-The data used for training the classifier provided in this repository
-is freely available at the following address:
+The data used for training the densenet classifier provided in this 
+repository is freely available at the following address:
 
 https://doi.org/10.1145/3352631.3352640
 
@@ -160,7 +190,7 @@ they correspond to where data is in your system.
 ## Generating activation heatmaps
 
 For investigation purpose, it is possible to produce heatmaps showing
-where and how much the network gets activated for specific classes.
+where and how much the densenet network gets activated for specific classes.
 
 You need first to install an additional dependency which is not required
 by the OCR-D tool with:

@@ -17,7 +17,7 @@
         "level": {
           "description": "The PAGE-XML hierarchy level to operate on",
           "type": "string",
-          "enum": ["page", "region"],
+          "enum": ["page", "region", "line"],
           "default": "page"
         },
         "network": {
