@@ -20,7 +20,7 @@ class TypegroupsClassifier:
             Maps class names to indices corresponding to what the network
             outputs.
         network: PyTorch network
-            Classifier
+            Classifier model to be used depending on the strategy
         dev: str
             Device on which the data must be processed
     
@@ -155,19 +155,14 @@ class PatchwiseTypegroupsClassifier(TypegroupsClassifier):
             Maps class names to indices corresponding to what the network
             outputs.
         network: PyTorch network
-            Classifier
+            Classifier model, cnn to be applied on patches of image
         dev: str
             Device on which the data must be processed
     
     """
     
 
-    def run(self, pil_image, **kwargs):
-
-        stride = kwargs['stride']
-        batch_size = kwargs.get('batch_size', 32) 
-        score_as_key = kwargs.get('score_as_key', False)
-
+    def run(self, pil_image, stride=112, batch_size=32, score_as_key=False):
         return self.classify(pil_image, stride, batch_size, score_as_key)
 
     def classify(self, pil_image, stride, batch_size, score_as_key):
@@ -238,14 +233,14 @@ class ColwiseTypegroupsClassifier(TypegroupsClassifier):
             Maps class names to indices corresponding to what the network
             outputs.
         network: PyTorch network
-            Classifier
+            Classifier model, must classify pixel columns
         dev: str
             Device on which the data must be processed
     
     """
     
 
-    def run(self, pil_image, score_as_key=False, **kwargs):
+    def run(self, pil_image, score_as_key=False):
 
         return self.classify(pil_image, score_as_key)
 

@@ -50,7 +50,11 @@ class TypegroupsClassifierProcessor(Processor):
 
     def _process_segment(self, segment, image):
         LOG = getLogger('ocrd_typegroups_classifier')
-        result = self.classifier.run(image, stride=self.parameter['stride'])
+        if self.parameter['level'] == 'line':
+            result = self.classifier.run(image)
+        else:
+            result = self.classifier.run(image, stride=self.parameter['stride'])
+
         active_types = self.parameter['active_classes']
         script_score_map = dict()
         script_score_sum = 0

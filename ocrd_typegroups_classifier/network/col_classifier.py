@@ -6,8 +6,18 @@ import torch.nn.functional as F
 import json
 
 
-class Backbone(torch.nn.Module):
+class NoDimRedBackbone(torch.nn.Module):
+    """
+    CNN which does not reduce horizontal dimensions of the input.
+    Useful for pixel column labeling.
+    """
     def __init__(self, output_dim=32):
+        """
+        Constructor
+
+        :param output_dim: number of neurons in the output layer
+        :return: instance of the class
+        """ 
         super().__init__()
         self.act = torch.nn.LeakyReLU()
         self.max_pool2 = torch.nn.MaxPool2d(kernel_size=(3,1))
@@ -18,6 +28,12 @@ class Backbone(torch.nn.Module):
         self.output_dim = output_dim
 
     def forward(self, x):
+        """
+        Extracts features from an input text line
+
+        :param x: text line (batch)
+        :return: descriptors (batch)
+        """ 
         x = self.act(self.conv1(x))
         x = self.act(self.conv2(x))
         x = self.max_pool2(x)
@@ -27,6 +43,10 @@ class Backbone(torch.nn.Module):
 
 
 class ColClassifier(torch.nn.Module):
+    """
+    This class is used for classifying the pixel columns of a text line.
+    It is getting outdated and might be removed at a later stage.
+    """
     def __init__(self, backbone, feature_dim, nb_classes=12):
         super().__init__()
         self.backbone = backbone
