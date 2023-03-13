@@ -39,7 +39,21 @@
           "format": "integer",
           "default": 112
         }
-      }
+      },
+      "resources": [
+        {
+          "url": "https://github.com/OCR-D/ocrd_typegroups_classifier/raw/master/ocrd_typegroups_classifier/models/densenet121.tgc",
+          "name": "densenet121.tgc",
+          "description": "Network to predict font families with. Bundled with standard installation.",
+          "size": 28509377
+        },
+        {
+          "url": "https://github.com/OCR-D/ocrd_typegroups_classifier/raw/master/ocrd_typegroups_classifier/models/colwise_classifier.tgc",
+          "name": "colwise_classifier.tgc",
+          "description": "Network to predict font families with. Bundled with standard installation.",
+          "size": 186208
+        }
+      ]
     }
   }
 }
