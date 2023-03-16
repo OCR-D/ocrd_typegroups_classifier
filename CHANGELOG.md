@@ -4,6 +4,8 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+# [0.5.0] - 2023-03-16
+
 Added:
 
   * New line-based classification, #14
