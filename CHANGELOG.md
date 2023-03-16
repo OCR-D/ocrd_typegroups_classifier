@@ -7,6 +7,7 @@ Versioned according to [Semantic Versioning](http://semver.org/).
 Added:
 
   * New line-based classification, #14
+  * Resources now listed in the `ocrd-tool.json`, #15
 
 # [0.4.0] - 2021-10-23
 
