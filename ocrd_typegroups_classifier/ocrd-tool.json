@@ -12,7 +12,7 @@
         "recognition/font-identification"
       ],
       "input_file_grp": ["OCR-D-IMG"],
-      "output_file_grp": ["OCR-D-IMG-FONTS"],
+      "output_file_grp": ["OCR-D-FONTS"],
       "parameters": {
         "level": {
           "description": "The PAGE-XML hierarchy level to operate on",
@@ -21,9 +21,11 @@
           "default": "page"
         },
         "network": {
-          "description": "The file name of the neural network to use, including sufficient path information",
+          "description": "The neural network pickle file to use",
           "type": "string",
-          "required": false
+          "format": "uri",
+          "content-type": "application/octet-stream",
+          "required": true
         },
         "active_classes": {
           "description": "Restrict the set of decoded font type groups to the given list; if empty, then allow all classes (i.e. antiqua/bastarda/fraktur/gotico_antiqua/greek/hebrew/italic/rotunda/schwabacher/textura/other_font/not_a_font)",
